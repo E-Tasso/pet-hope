@@ -1,0 +1,61 @@
+# Development overrides - automatically used by docker-compose
+# For production, use: docker-compose -f docker-compose.yml up
+
+version: '3.8'
+
+services:
+  # PostgreSQL - Expose port for local development tools
+  postgres:
+    ports:
+      - "5432:5432"
+
+  # MinIO - Expose ports for console and API
+  minio:
+    ports:
+      - "9000:9000"  # API
+      - "9001:9001"  # Console
+
+  # Backend - Hot reload with volume mounts
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./backend:/app
+      - /app/__pycache__
+      - backend_venv:/app/.venv
+    ports:
+      - "8000:8000"
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    environment:
+      PYTHONUNBUFFERED: "1"
+      WATCHFILES_FORCE_POLLING: "true"
+      MINIO_PUBLIC_URL: ${MINIO_PUBLIC_URL:-http://localhost/storage}
+
+  # Frontend - Hot reload with volume mounts
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.nuxt
+      - /app/.output
+    ports:
+      - "3000:3000"
+      - "24678:24678"  # Vite HMR
+    command: npm run dev
+    environment:
+      NODE_ENV: development
+      NUXT_PUBLIC_API_BASE: ${NUXT_PUBLIC_API_BASE:-http://localhost/api}
+
+  # Nginx - Development configuration
+  nginx:
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+
+volumes:
+  backend_venv:
+    driver: local

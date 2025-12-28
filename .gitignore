@@ -1,0 +1,94 @@
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Docker volumes data
+postgres_data/
+minio_data/
+
+# Logs
+*.log
+logs/
+nginx_logs/
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.venv/
+venv/
+ENV/
+env/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.npm/
+.yarn/
+
+# Nuxt
+.nuxt/
+.output/
+.cache/
+.data/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Certificates
+*.pem
+*.key
+*.crt
+ssl/
+letsencrypt/
+
+# Production configs (keep examples)
+nginx/conf.d/prod.conf
+docker-compose.prod.yml
+
+# Temporary files
+tmp/
+temp/
+*.tmp
