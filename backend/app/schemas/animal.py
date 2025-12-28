@@ -158,6 +158,7 @@ class AnimalFeedItem(BaseModel):
     description: str
     location: str
     status: AnimalStatus
+    contact_info: dict
     images: List[ImageInResponse] = Field(default_factory=list)
     created_at: datetime
 

@@ -84,9 +84,8 @@ yarn-error.log*
 ssl/
 letsencrypt/
 
-# Production configs (keep examples)
+# Production configs with secrets (keep examples)
 nginx/conf.d/prod.conf
-docker-compose.prod.yml
 
 # Temporary files
 tmp/

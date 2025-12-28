@@ -60,22 +60,27 @@ const truncatedDescription = computed(() => {
     <!-- Image Carousel -->
     <FeedCarousel :images="animal.images" />
 
-    <!-- Actions -->
-    <div class="flex items-center justify-between px-4 pt-3">
-      <FeedShareButton :animal-id="animal.id" :animal-name="animal.name" />
-    </div>
-
     <!-- Content -->
-    <div class="px-4 pb-3">
-      <!-- Line 1: Name, Location, Tags -->
-      <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+    <div class="px-4 py-3">
+      <!-- Line 1: Name + Action Buttons -->
+      <div class="flex items-center justify-between gap-2">
         <NuxtLink
           :to="`/animais/${animal.id}`"
           class="font-semibold text-foreground hover:text-primary"
         >
           {{ animal.name }}
         </NuxtLink>
-        <span class="text-muted-foreground">·</span>
+        <div class="flex items-center gap-3">
+          <FeedContactButton
+            :animal-name="animal.name"
+            :contact-info="animal.contact_info"
+          />
+          <FeedShareButton :animal-id="animal.id" :animal-name="animal.name" />
+        </div>
+      </div>
+
+      <!-- Line 2: Location and Tags -->
+      <div class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
         <span class="text-sm text-muted-foreground">{{ animal.location }}</span>
         <span class="text-muted-foreground">·</span>
         <span class="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
@@ -92,7 +97,7 @@ const truncatedDescription = computed(() => {
         </span>
       </div>
 
-      <!-- Line 2: Description + Ver mais -->
+      <!-- Line 3: Description + Ver mais -->
       <p class="mt-2 text-sm text-foreground/80">
         {{ truncatedDescription }}
         <NuxtLink

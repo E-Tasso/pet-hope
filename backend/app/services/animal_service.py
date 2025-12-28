@@ -170,6 +170,7 @@ class AnimalService:
                 description=animal.description,
                 location=animal.location,
                 status=animal.status,
+                contact_info=animal.contact_info,
                 images=images,
                 created_at=animal.created_at,
             )

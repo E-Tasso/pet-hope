@@ -77,6 +77,7 @@ export interface AnimalFeedItem {
   description: string
   location: string
   status: AnimalStatus
+  contact_info: Record<string, string>
   images: Image[]
   created_at: string
 }

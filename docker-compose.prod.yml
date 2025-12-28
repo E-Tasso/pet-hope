@@ -1,0 +1,42 @@
+# Production overrides
+# Usage: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+services:
+  # PostgreSQL - No exposed ports in production
+  postgres:
+    restart: always
+
+  # MinIO - No exposed ports in production
+  minio:
+    restart: always
+
+  # Backend - Production optimized
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      PYTHONUNBUFFERED: "1"
+      MINIO_PUBLIC_URL: ${MINIO_PUBLIC_URL:-https://localhost/storage}
+
+  # Frontend - Production build
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      NODE_ENV: production
+      NUXT_PUBLIC_API_BASE: ${NUXT_PUBLIC_API_BASE:-https://localhost/api}
+
+  # Nginx - Production with SSL
+  nginx:
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d/prod.conf:/etc/nginx/conf.d/default.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    restart: always
