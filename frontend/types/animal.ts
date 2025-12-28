@@ -1,10 +1,13 @@
-// Enums matching backend
+// Enums matching backend - based on IBAMA Portaria 93/1998
 export enum Species {
   DOG = 'dog',
   CAT = 'cat',
+  RABBIT = 'rabbit',
+  HAMSTER = 'hamster',
+  GUINEA_PIG = 'guinea_pig',
   BIRD = 'bird',
-  RODENT = 'rodent',
-  OTHER = 'other',
+  CHINCHILLA = 'chinchilla',
+  FISH = 'fish',
 }
 
 export enum Size {
@@ -89,7 +92,7 @@ export interface AnimalCreate {
   age_months?: number
   size: Size
   gender: Gender
-  description: string
+  description?: string
   traits?: string[]
   special_needs?: string
   location: string

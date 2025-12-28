@@ -24,9 +24,12 @@ const speciesLabel = computed(() => {
   const labels: Record<string, string> = {
     dog: 'Cachorro',
     cat: 'Gato',
-    bird: 'Passaro',
-    rodent: 'Roedor',
-    other: 'Outro',
+    rabbit: 'Coelho',
+    hamster: 'Hamster',
+    guinea_pig: 'Porquinho-da-índia',
+    bird: 'Ave',
+    chinchilla: 'Chinchila',
+    fish: 'Peixe',
   }
   return labels[props.animal.species] || 'Animal'
 })

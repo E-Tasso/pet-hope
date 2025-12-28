@@ -18,8 +18,8 @@ class AnimalBase(BaseModel):
     )
     size: Size = Field(..., description="Animal size")
     gender: Gender = Field(..., description="Animal gender")
-    description: str = Field(
-        ..., min_length=10, max_length=5000, description="Animal description and history"
+    description: Optional[str] = Field(
+        None, max_length=5000, description="Animal description and history (optional)"
     )
     traits: List[str] = Field(
         default_factory=list,

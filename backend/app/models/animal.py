@@ -8,13 +8,16 @@ from app.models.base import Base, TimestampMixin, UUIDMixin
 
 
 class Species(str, enum.Enum):
-    """Animal species enum."""
+    """Animal species enum - based on IBAMA Portaria 93/1998."""
 
     DOG = "dog"
     CAT = "cat"
+    RABBIT = "rabbit"
+    HAMSTER = "hamster"
+    GUINEA_PIG = "guinea_pig"
     BIRD = "bird"
-    RODENT = "rodent"
-    OTHER = "other"
+    CHINCHILLA = "chinchilla"
+    FISH = "fish"
 
 
 class Size(str, enum.Enum):
