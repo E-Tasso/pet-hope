@@ -76,13 +76,13 @@ services:
       - backend
     restart: always
 
-  # Nginx Reverse Proxy (exposed directly, bypass Traefik)
+  # Nginx Reverse Proxy (Traefik routes to this via domain)
   nginx:
     build:
       context: ./nginx
       dockerfile: Dockerfile
-    ports:
-      - "3080:80"
+    expose:
+      - "80"
     depends_on:
       - backend
       - frontend
