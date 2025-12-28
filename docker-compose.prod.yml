@@ -76,11 +76,11 @@ services:
       - backend
     restart: always
 
-  # Nginx Reverse Proxy
+  # Nginx Reverse Proxy (Coolify/Traefik will route to this)
   nginx:
     image: nginx:alpine
-    ports:
-      - "80:80"
+    expose:
+      - "80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
