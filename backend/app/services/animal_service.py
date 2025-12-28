@@ -73,9 +73,9 @@ class AnimalService:
         total_result = await db.execute(count_query)
         total = total_result.scalar() or 0
 
-        # Apply pagination and ordering
+        # Apply pagination and ordering (oldest first - animals waiting longer)
         offset = (page - 1) * page_size
-        query = query.order_by(Animal.created_at.desc()).offset(offset).limit(page_size)
+        query = query.order_by(Animal.created_at.asc()).offset(offset).limit(page_size)
 
         # Execute query
         result = await db.execute(query)
@@ -120,6 +120,7 @@ class AnimalService:
     @staticmethod
     async def get_animals_feed(
         db: AsyncSession,
+        filters: AnimalFilters,
         page: int = 1,
         page_size: int = 10,
     ) -> PaginatedResponse[AnimalFeedItem]:
@@ -128,6 +129,7 @@ class AnimalService:
 
         Args:
             db: Database session
+            filters: Filter parameters
             page: Page number (1-indexed)
             page_size: Items per page
 
@@ -137,14 +139,24 @@ class AnimalService:
         # Build query - only available animals for the feed
         query = select(Animal).where(Animal.status == AnimalStatus.AVAILABLE)
 
+        # Apply filters
+        if filters.species:
+            query = query.where(Animal.species == filters.species)
+        if filters.size:
+            query = query.where(Animal.size == filters.size)
+        if filters.gender:
+            query = query.where(Animal.gender == filters.gender)
+        if filters.location:
+            query = query.where(Animal.location.ilike(f"%{filters.location}%"))
+
         # Get total count
         count_query = select(func.count()).select_from(query.subquery())
         total_result = await db.execute(count_query)
         total = total_result.scalar() or 0
 
-        # Apply pagination and ordering (newest first)
+        # Apply pagination and ordering (oldest first - animals waiting longer)
         offset = (page - 1) * page_size
-        query = query.order_by(Animal.created_at.desc()).offset(offset).limit(page_size)
+        query = query.order_by(Animal.created_at.asc()).offset(offset).limit(page_size)
 
         # Execute query
         result = await db.execute(query)
@@ -218,6 +230,18 @@ class AnimalService:
         data_dict = animal_data.model_dump()
         edit_key = data_dict.pop("edit_key")
         data_dict["edit_key_hash"] = hash_key(edit_key)
+
+        # Set default description if not provided
+        if not data_dict.get("description"):
+            species_names = {
+                "dog": "cachorro",
+                "cat": "gato",
+                "bird": "pássaro",
+                "rodent": "roedor",
+                "other": "animal",
+            }
+            species_name = species_names.get(data_dict.get("species", "other"), "animal")
+            data_dict["description"] = f"Olá! Sou um {species_name} em busca de um lar amoroso. Entre em contato para me conhecer!"
 
         animal = Animal(**data_dict)
         db.add(animal)

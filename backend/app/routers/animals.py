@@ -65,6 +65,12 @@ async def list_animals(
 
 @router.get("/feed", response_model=PaginatedResponse[AnimalFeedItem])
 async def get_animals_feed(
+    # Filters
+    species: str | None = Query(None, description="Filter by species"),
+    size: str | None = Query(None, description="Filter by size"),
+    gender: str | None = Query(None, description="Filter by gender"),
+    location: str | None = Query(None, description="Filter by location (partial match)"),
+    # Pagination
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(
         default=10,
@@ -80,7 +86,13 @@ async def get_animals_feed(
     Returns a paginated list of available animals with their full image galleries.
     Optimized for infinite scroll feed display.
     """
-    return await AnimalService.get_animals_feed(db, page, page_size)
+    filters = AnimalFilters(
+        species=species,
+        size=size,
+        gender=gender,
+        location=location,
+    )
+    return await AnimalService.get_animals_feed(db, filters, page, page_size)
 
 
 @router.get("/{animal_id}", response_model=AnimalResponse)
