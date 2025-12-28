@@ -4,6 +4,7 @@ from typing import AsyncGenerator
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
+from sqlalchemy import text
 
 from app import __version__
 from app.config import get_settings
@@ -88,7 +89,7 @@ async def health_check() -> JSONResponse:
     # Check database
     try:
         async with engine.connect() as conn:
-            await conn.execute("SELECT 1")
+            await conn.execute(text("SELECT 1"))
         health_status["checks"]["database"] = "healthy"
     except Exception as e:
         health_status["checks"]["database"] = f"unhealthy: {str(e)}"
