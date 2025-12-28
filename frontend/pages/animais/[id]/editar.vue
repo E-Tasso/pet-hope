@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Animal, AnimalUpdate, Image } from '~/types'
+import type { Animal, Image } from '~/types'
 
 const route = useRoute()
 const router = useRouter()
@@ -7,87 +7,79 @@ const config = useRuntimeConfig()
 
 const animalId = route.params.id as string
 
-// State
+// Auth state
 const isVerifying = ref(false)
 const isVerified = ref(false)
-const isSubmitting = ref(false)
 const editKey = ref('')
 const verifyError = ref('')
+
+// Data state
+const animal = ref<Animal | null>(null)
+const isLoading = ref(true)
+const isSubmitting = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
 
-// Animal data
-const animal = ref<Animal | null>(null)
-const isLoading = ref(true)
-
 // Image handling
 const existingImages = ref<Image[]>([])
+const newImages = ref<File[]>([])
+const newImageUrls = ref<string[]>([])
 const fileInputRef = ref<HTMLInputElement | null>(null)
 const isUploadingImages = ref(false)
 const isDeletingImage = ref<string | null>(null)
+
+// Cropper state
+const showCropper = ref(false)
+const cropperImageUrl = ref('')
+const pendingFiles = ref<File[]>([])
+const currentCropIndex = ref(0)
+const editingNewIndex = ref<number | null>(null)
 
 // Form data
 const form = reactive({
   name: '',
   species: 'dog',
-  breed: '',
-  age_months: undefined as number | undefined,
   size: 'medium',
   gender: 'unknown',
   description: '',
-  traits: [] as string[],
-  special_needs: '',
   location: '',
   contact_info: {
-    phone: '',
-    email: '',
     whatsapp: '',
   },
   status: 'available',
 })
 
-// Options
-const traitOptions = [
-  'Castrado',
-  'Vacinado',
-  'Vermifugado',
-  'Microchipado',
-  'Bom com criancas',
-  'Bom com outros animais',
-  'Bom com gatos',
-  'Bom com caes',
-  'Treinado',
-  'Docil',
-  'Brincalhao',
-  'Calmo',
-  'Independente',
-]
-
 const speciesOptions = [
   { value: 'dog', label: 'Cachorro' },
   { value: 'cat', label: 'Gato' },
-  { value: 'bird', label: 'Passaro' },
-  { value: 'rodent', label: 'Roedor' },
-  { value: 'other', label: 'Outro' },
+  { value: 'rabbit', label: 'Coelho' },
+  { value: 'hamster', label: 'Hamster' },
+  { value: 'guinea_pig', label: 'Porquinho-da-índia' },
+  { value: 'bird', label: 'Ave (calopsita, periquito, canário)' },
+  { value: 'chinchilla', label: 'Chinchila' },
+  { value: 'fish', label: 'Peixe' },
 ]
 
 const sizeOptions = [
   { value: 'small', label: 'Pequeno' },
-  { value: 'medium', label: 'Medio' },
+  { value: 'medium', label: 'Médio' },
   { value: 'large', label: 'Grande' },
 ]
 
 const genderOptions = [
   { value: 'male', label: 'Macho' },
-  { value: 'female', label: 'Femea' },
-  { value: 'unknown', label: 'Nao sei' },
+  { value: 'female', label: 'Fêmea' },
+  { value: 'unknown', label: 'Não sei' },
 ]
 
 const statusOptions = [
-  { value: 'available', label: 'Disponivel' },
-  { value: 'in_process', label: 'Em processo de adocao' },
-  { value: 'adopted', label: 'Adotado' },
+  { value: 'available', label: 'Disponível', color: 'bg-green-100 text-green-700 border-green-300' },
+  { value: 'in_process', label: 'Em processo', color: 'bg-yellow-100 text-yellow-700 border-yellow-300' },
+  { value: 'adopted', label: 'Adotado', color: 'bg-purple-100 text-purple-700 border-purple-300' },
 ]
+
+// Total images count
+const totalImages = computed(() => existingImages.value.length + newImages.value.length)
 
 // Load animal data
 async function loadAnimal() {
@@ -97,25 +89,15 @@ async function loadAnimal() {
       baseURL: config.public.apiBase as string,
     })
 
-    // Populate form
     form.name = animal.value.name
     form.species = animal.value.species
-    form.breed = animal.value.breed || ''
-    form.age_months = animal.value.age_months
     form.size = animal.value.size
     form.gender = animal.value.gender
-    form.description = animal.value.description
-    form.traits = animal.value.traits || []
-    form.special_needs = animal.value.special_needs || ''
+    form.description = animal.value.description || ''
     form.location = animal.value.location
     form.status = animal.value.status
-    form.contact_info = {
-      phone: animal.value.contact_info?.phone || '',
-      email: animal.value.contact_info?.email || '',
-      whatsapp: animal.value.contact_info?.whatsapp || '',
-    }
+    form.contact_info.whatsapp = animal.value.contact_info?.whatsapp || animal.value.contact_info?.phone || ''
 
-    // Populate existing images
     existingImages.value = animal.value.images || []
   } catch (error) {
     console.error('Error loading animal:', error)
@@ -125,60 +107,136 @@ async function loadAnimal() {
   }
 }
 
+// Verify edit key
+async function verifyEditKey() {
+  if (!editKey.value) {
+    verifyError.value = 'Digite a senha'
+    return
+  }
+
+  isVerifying.value = true
+  verifyError.value = ''
+
+  try {
+    const response = await $fetch<{ valid: boolean }>(`/animals/${animalId}/verify-key`, {
+      baseURL: config.public.apiBase as string,
+      method: 'POST',
+      body: { edit_key: editKey.value },
+    })
+
+    if (response.valid) {
+      isVerified.value = true
+    } else {
+      verifyError.value = 'Senha incorreta'
+    }
+  } catch (error) {
+    console.error('Error verifying key:', error)
+    verifyError.value = 'Erro ao verificar senha'
+  } finally {
+    isVerifying.value = false
+  }
+}
+
 // Image handling functions
 function triggerFileInput() {
   fileInputRef.value?.click()
 }
 
-async function handleFileSelect(event: Event) {
+function handleFileSelect(event: Event) {
   const input = event.target as HTMLInputElement
   if (!input.files) return
 
   const files = Array.from(input.files)
 
-  // Validate files
   for (const file of files) {
     if (!file.type.startsWith('image/')) {
       errorMessage.value = 'Apenas imagens são permitidas'
+      input.value = ''
       return
     }
-    if (file.size > 5 * 1024 * 1024) {
-      errorMessage.value = 'Imagens devem ter no máximo 5MB'
+    if (file.size > 10 * 1024 * 1024) {
+      errorMessage.value = 'Cada imagem deve ter no máximo 10MB'
+      input.value = ''
       return
     }
   }
 
-  // Reset input
+  const maxNew = 5 - totalImages.value
+  pendingFiles.value = files.slice(0, maxNew)
+  currentCropIndex.value = 0
+  editingNewIndex.value = null
+
+  if (pendingFiles.value.length > 0) {
+    openCropperForFile(pendingFiles.value[0])
+  }
+
   input.value = ''
-
-  // Upload images automatically
-  isUploadingImages.value = true
   errorMessage.value = ''
+}
 
-  for (const file of files) {
-    try {
-      const formData = new FormData()
-      formData.append('file', file)
+function openCropperForFile(file: File) {
+  cropperImageUrl.value = URL.createObjectURL(file)
+  showCropper.value = true
+}
 
-      const newImage = await $fetch<Image>(`/images/animals/${animalId}/images`, {
-        baseURL: config.public.apiBase as string,
-        method: 'POST',
-        body: formData,
-      })
+function editNewImage(index: number) {
+  editingNewIndex.value = index
+  cropperImageUrl.value = newImageUrls.value[index]
+  showCropper.value = true
+}
 
-      // Add to existing images immediately
-      existingImages.value = [...existingImages.value, newImage]
-    } catch (error) {
-      console.error('Error uploading image:', error)
-      errorMessage.value = 'Erro ao enviar uma das imagens'
+async function handleCropSave(blob: Blob) {
+  const file = new File([blob], `image_${Date.now()}.jpg`, { type: 'image/jpeg' })
+  const previewUrl = URL.createObjectURL(blob)
+
+  if (editingNewIndex.value !== null) {
+    URL.revokeObjectURL(newImageUrls.value[editingNewIndex.value])
+    newImages.value[editingNewIndex.value] = file
+    newImageUrls.value[editingNewIndex.value] = previewUrl
+    editingNewIndex.value = null
+  } else {
+    newImages.value.push(file)
+    newImageUrls.value.push(previewUrl)
+
+    currentCropIndex.value++
+    if (currentCropIndex.value < pendingFiles.value.length) {
+      URL.revokeObjectURL(cropperImageUrl.value)
+      openCropperForFile(pendingFiles.value[currentCropIndex.value])
+      return
     }
   }
 
-  isUploadingImages.value = false
+  closeCropper()
+}
+
+function handleCropCancel() {
+  if (editingNewIndex.value === null) {
+    currentCropIndex.value++
+    if (currentCropIndex.value < pendingFiles.value.length) {
+      URL.revokeObjectURL(cropperImageUrl.value)
+      openCropperForFile(pendingFiles.value[currentCropIndex.value])
+      return
+    }
+  }
+  closeCropper()
+}
+
+function closeCropper() {
+  URL.revokeObjectURL(cropperImageUrl.value)
+  showCropper.value = false
+  cropperImageUrl.value = ''
+  pendingFiles.value = []
+  editingNewIndex.value = null
+}
+
+function removeNewImage(index: number) {
+  URL.revokeObjectURL(newImageUrls.value[index])
+  newImages.value.splice(index, 1)
+  newImageUrls.value.splice(index, 1)
 }
 
 async function deleteExistingImage(imageId: string) {
-  if (!confirm('Tem certeza que deseja excluir esta foto?')) return
+  if (!confirm('Excluir esta foto?')) return
 
   isDeletingImage.value = imageId
   try {
@@ -202,7 +260,6 @@ async function setAsPrimary(imageId: string) {
       method: 'PATCH',
       body: { is_primary: true },
     })
-    // Update local state
     existingImages.value = existingImages.value.map(img => ({
       ...img,
       is_primary: img.id === imageId,
@@ -213,42 +270,22 @@ async function setAsPrimary(imageId: string) {
   }
 }
 
-// Verify edit key
-async function verifyEditKey() {
-  if (!editKey.value) {
-    verifyError.value = 'Digite a chave de edicao'
-    return
-  }
+async function uploadNewImages() {
+  for (const file of newImages.value) {
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
 
-  isVerifying.value = true
-  verifyError.value = ''
+      const newImage = await $fetch<Image>(`/images/animals/${animalId}/images`, {
+        baseURL: config.public.apiBase as string,
+        method: 'POST',
+        body: formData,
+      })
 
-  try {
-    const response = await $fetch<{ valid: boolean }>(`/animals/${animalId}/verify-key`, {
-      baseURL: config.public.apiBase as string,
-      method: 'POST',
-      body: { edit_key: editKey.value },
-    })
-
-    if (response.valid) {
-      isVerified.value = true
-    } else {
-      verifyError.value = 'Chave de edicao invalida'
+      existingImages.value = [...existingImages.value, newImage]
+    } catch (error) {
+      console.error('Error uploading image:', error)
     }
-  } catch (error) {
-    console.error('Error verifying key:', error)
-    verifyError.value = 'Erro ao verificar chave'
-  } finally {
-    isVerifying.value = false
-  }
-}
-
-function toggleTrait(trait: string) {
-  const index = form.traits?.indexOf(trait) ?? -1
-  if (index === -1) {
-    form.traits = [...(form.traits || []), trait]
-  } else {
-    form.traits = form.traits?.filter(t => t !== trait)
   }
 }
 
@@ -256,46 +293,41 @@ async function handleSubmit() {
   errorMessage.value = ''
   successMessage.value = ''
 
-  // Validate
   if (!form.name.trim()) {
-    errorMessage.value = 'Nome e obrigatorio'
-    return
-  }
-  if (!form.description.trim() || form.description.length < 10) {
-    errorMessage.value = 'Descricao deve ter pelo menos 10 caracteres'
+    errorMessage.value = 'Nome é obrigatório'
     return
   }
   if (!form.location.trim()) {
-    errorMessage.value = 'Localizacao e obrigatoria'
+    errorMessage.value = 'Cidade é obrigatória'
     return
   }
-
-  const hasContact = form.contact_info.phone || form.contact_info.email || form.contact_info.whatsapp
-  if (!hasContact) {
-    errorMessage.value = 'Informe pelo menos um meio de contato'
+  if (!form.contact_info.whatsapp.trim()) {
+    errorMessage.value = 'WhatsApp é obrigatório'
     return
   }
 
   isSubmitting.value = true
 
   try {
-    const cleanContactInfo: Record<string, string> = {}
-    if (form.contact_info.phone) cleanContactInfo.phone = form.contact_info.phone
-    if (form.contact_info.email) cleanContactInfo.email = form.contact_info.email
-    if (form.contact_info.whatsapp) cleanContactInfo.whatsapp = form.contact_info.whatsapp
+    // Upload new images first
+    if (newImages.value.length > 0) {
+      isUploadingImages.value = true
+      await uploadNewImages()
+      isUploadingImages.value = false
+      newImages.value = []
+      newImageUrls.value.forEach(url => URL.revokeObjectURL(url))
+      newImageUrls.value = []
+    }
 
+    // Update animal data
     const payload = {
       name: form.name,
       species: form.species,
-      breed: form.breed || undefined,
-      age_months: form.age_months || undefined,
       size: form.size,
       gender: form.gender,
-      description: form.description,
-      traits: form.traits,
-      special_needs: form.special_needs || undefined,
+      description: form.description || undefined,
       location: form.location,
-      contact_info: cleanContactInfo,
+      contact_info: { whatsapp: form.contact_info.whatsapp },
       status: form.status,
       edit_key: editKey.value,
     }
@@ -306,22 +338,28 @@ async function handleSubmit() {
       body: payload,
     })
 
-    successMessage.value = 'Animal atualizado com sucesso!'
+    successMessage.value = 'Salvo com sucesso!'
 
     setTimeout(() => {
       router.push(`/animais/${animalId}`)
-    }, 1500)
+    }, 1000)
   } catch (error: any) {
     console.error('Error updating animal:', error)
-    errorMessage.value = error?.data?.detail || 'Erro ao atualizar animal'
+    errorMessage.value = error?.data?.detail || 'Erro ao salvar'
   } finally {
     isSubmitting.value = false
   }
 }
 
-// Load animal on mount
 onMounted(() => {
   loadAnimal()
+})
+
+onUnmounted(() => {
+  newImageUrls.value.forEach(url => URL.revokeObjectURL(url))
+  if (cropperImageUrl.value) {
+    URL.revokeObjectURL(cropperImageUrl.value)
+  }
 })
 
 useSeoMeta({
@@ -330,380 +368,331 @@ useSeoMeta({
 </script>
 
 <template>
-  <div class="container mx-auto px-4 py-8 max-w-3xl">
+  <div class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <div class="sticky top-0 z-10 bg-white border-b">
+      <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+        <NuxtLink :to="`/animais/${animalId}`" class="p-2 -ml-2 hover:bg-gray-100 rounded-full">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </NuxtLink>
+        <h1 class="font-semibold">Editar</h1>
+        <div class="w-9"></div>
+      </div>
+    </div>
+
     <!-- Loading -->
-    <div v-if="isLoading" class="flex justify-center py-12">
-      <div class="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+    <div v-if="isLoading" class="flex justify-center py-16">
+      <div class="h-8 w-8 animate-spin rounded-full border-4 border-purple-600 border-t-transparent" />
     </div>
 
     <!-- Key Verification -->
-    <div v-else-if="!isVerified" class="max-w-md mx-auto">
-      <div class="bg-white p-8 rounded-lg shadow-sm border text-center">
+    <div v-else-if="!isVerified" class="container mx-auto px-4 py-8 max-w-sm">
+      <div class="text-center mb-8">
         <div class="w-16 h-16 mx-auto mb-4 bg-purple-100 rounded-full flex items-center justify-center">
           <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
           </svg>
         </div>
-
-        <h1 class="text-2xl font-bold text-gray-900 mb-2">Editar {{ animal?.name }}</h1>
-        <p class="text-gray-600 mb-6">
-          Digite a chave de edicao que voce criou ao cadastrar este animal.
-        </p>
-
-        <div v-if="verifyError" class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-          <p class="text-red-800 text-sm">{{ verifyError }}</p>
-        </div>
-
-        <form @submit.prevent="verifyEditKey" class="space-y-4">
-          <input
-            v-model="editKey"
-            type="password"
-            placeholder="Chave de edicao"
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-          />
-
-          <button
-            type="submit"
-            :disabled="isVerifying"
-            class="w-full py-3 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors disabled:opacity-50"
-          >
-            {{ isVerifying ? 'Verificando...' : 'Continuar' }}
-          </button>
-        </form>
-
-        <NuxtLink
-          :to="`/animais/${animalId}`"
-          class="inline-block mt-4 text-sm text-gray-600 hover:text-purple-600"
-        >
-          Voltar para o animal
-        </NuxtLink>
+        <h2 class="text-xl font-bold text-gray-900 mb-1">{{ animal?.name }}</h2>
+        <p class="text-gray-500 text-sm">Digite a senha para editar</p>
       </div>
+
+      <div v-if="verifyError" class="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-center">
+        <p class="text-red-700 text-sm">{{ verifyError }}</p>
+      </div>
+
+      <form @submit.prevent="verifyEditKey" class="space-y-4">
+        <input
+          v-model="editKey"
+          type="password"
+          placeholder="Senha"
+          class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-center"
+        />
+        <button
+          type="submit"
+          :disabled="isVerifying"
+          class="w-full py-3 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 disabled:opacity-50"
+        >
+          {{ isVerifying ? 'Verificando...' : 'Continuar' }}
+        </button>
+      </form>
     </div>
 
     <!-- Edit Form -->
-    <div v-else>
-      <h1 class="text-3xl font-bold text-gray-900 mb-2">Editar {{ animal?.name }}</h1>
-      <p class="text-gray-600 mb-8">Atualize os dados do animal</p>
-
-      <!-- Success Message -->
-      <div v-if="successMessage" class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-        <p class="text-green-800 font-medium">{{ successMessage }}</p>
+    <div v-else class="container mx-auto px-4 py-4 max-w-lg pb-24">
+      <!-- Messages -->
+      <div v-if="successMessage" class="mb-4 p-3 bg-green-50 border border-green-200 rounded-xl text-center">
+        <p class="text-green-700 text-sm font-medium">{{ successMessage }}</p>
+      </div>
+      <div v-if="errorMessage" class="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-center">
+        <p class="text-red-700 text-sm">{{ errorMessage }}</p>
       </div>
 
-      <!-- Error Message -->
-      <div v-if="errorMessage" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-        <p class="text-red-800 font-medium">{{ errorMessage }}</p>
-      </div>
-
-      <form @submit.prevent="handleSubmit" class="space-y-8">
-        <!-- Basic Information -->
-        <section class="bg-white p-6 rounded-lg shadow-sm border">
-          <h2 class="text-xl font-semibold text-gray-900 mb-4">Informacoes Basicas</h2>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nome *</label>
-              <input
-                id="name"
-                v-model="form.name"
-                type="text"
-                required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-              />
-            </div>
-
-            <div>
-              <label for="species" class="block text-sm font-medium text-gray-700 mb-1">Especie *</label>
-              <select
-                id="species"
-                v-model="form.species"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-              >
-                <option v-for="option in speciesOptions" :key="option.value" :value="option.value">
-                  {{ option.label }}
-                </option>
-              </select>
-            </div>
-
-            <div>
-              <label for="breed" class="block text-sm font-medium text-gray-700 mb-1">Raca</label>
-              <input
-                id="breed"
-                v-model="form.breed"
-                type="text"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-              />
-            </div>
-
-            <div>
-              <label for="age" class="block text-sm font-medium text-gray-700 mb-1">Idade (meses)</label>
-              <input
-                id="age"
-                v-model.number="form.age_months"
-                type="number"
-                min="0"
-                max="360"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-              />
-            </div>
-
-            <div>
-              <label for="size" class="block text-sm font-medium text-gray-700 mb-1">Porte *</label>
-              <select
-                id="size"
-                v-model="form.size"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-              >
-                <option v-for="option in sizeOptions" :key="option.value" :value="option.value">
-                  {{ option.label }}
-                </option>
-              </select>
-            </div>
-
-            <div>
-              <label for="gender" class="block text-sm font-medium text-gray-700 mb-1">Sexo *</label>
-              <select
-                id="gender"
-                v-model="form.gender"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-              >
-                <option v-for="option in genderOptions" :key="option.value" :value="option.value">
-                  {{ option.label }}
-                </option>
-              </select>
-            </div>
-
-            <div>
-              <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status *</label>
-              <select
-                id="status"
-                v-model="form.status"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-              >
-                <option v-for="option in statusOptions" :key="option.value" :value="option.value">
-                  {{ option.label }}
-                </option>
-              </select>
-            </div>
+      <form @submit.prevent="handleSubmit" class="space-y-4">
+        <!-- Photos Section -->
+        <section>
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-sm font-medium text-gray-700">Fotos</h3>
+            <span class="text-xs text-gray-400">{{ totalImages }}/5</span>
           </div>
-        </section>
 
-        <!-- Photos -->
-        <section class="bg-white p-6 rounded-lg shadow-sm border">
-          <h2 class="text-xl font-semibold text-gray-900 mb-4">Fotos</h2>
+          <input
+            ref="fileInputRef"
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            multiple
+            class="hidden"
+            @change="handleFileSelect"
+          />
 
-          <!-- Existing Images -->
-          <div v-if="existingImages.length > 0" class="mb-6">
-            <h3 class="text-sm font-medium text-gray-700 mb-3">Fotos atuais</h3>
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              <div
-                v-for="image in existingImages"
-                :key="image.id"
-                class="relative group"
+          <div class="grid grid-cols-4 gap-2">
+            <!-- Existing images -->
+            <div
+              v-for="(image, index) in existingImages"
+              :key="image.id"
+              class="relative aspect-square rounded-lg overflow-hidden bg-gray-100 group"
+              :class="{ 'col-span-2 row-span-2': index === 0 && existingImages.length > 0 }"
+            >
+              <img :src="image.thumbnail_url" :alt="form.name" class="w-full h-full object-cover" />
+
+              <!-- Primary badge -->
+              <span
+                v-if="image.is_primary"
+                class="absolute top-1 left-1 px-1.5 py-0.5 bg-purple-600 text-white text-[10px] rounded-full"
               >
-                <div class="aspect-square rounded-lg overflow-hidden bg-gray-100">
-                  <img
-                    :src="image.thumbnail_url"
-                    :alt="form.name"
-                    class="w-full h-full object-cover"
-                  />
-                </div>
+                Principal
+              </span>
 
-                <!-- Primary badge -->
-                <div
-                  v-if="image.is_primary"
-                  class="absolute top-2 left-2 px-2 py-1 bg-purple-600 text-white text-xs rounded-full"
+              <!-- Actions overlay -->
+              <div class="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100">
+                <button
+                  v-if="!image.is_primary"
+                  type="button"
+                  @click="setAsPrimary(image.id)"
+                  class="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center"
+                  title="Definir como principal"
                 >
-                  Principal
-                </div>
-
-                <!-- Action buttons overlay -->
-                <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
-                  <!-- Set as primary -->
-                  <button
-                    v-if="!image.is_primary"
-                    type="button"
-                    @click="setAsPrimary(image.id)"
-                    class="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors"
-                    title="Definir como principal"
-                  >
-                    <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                    </svg>
-                  </button>
-
-                  <!-- Delete -->
-                  <button
-                    type="button"
-                    @click="deleteExistingImage(image.id)"
-                    :disabled="isDeletingImage === image.id"
-                    class="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors disabled:opacity-50"
-                    title="Excluir foto"
-                  >
-                    <svg v-if="isDeletingImage === image.id" class="w-5 h-5 text-red-600 animate-spin" fill="none" viewBox="0 0 24 24">
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <svg v-else class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
-                </div>
+                  <svg class="w-4 h-4 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  @click="deleteExistingImage(image.id)"
+                  :disabled="isDeletingImage === image.id"
+                  class="w-8 h-8 bg-red-500/90 rounded-full flex items-center justify-center disabled:opacity-50"
+                  title="Excluir"
+                >
+                  <svg v-if="isDeletingImage === image.id" class="w-4 h-4 text-white animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <svg v-else class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
               </div>
             </div>
-          </div>
 
-          <!-- Add Photos Button -->
-          <div>
-            <input
-              ref="fileInputRef"
-              type="file"
-              accept="image/*"
-              multiple
-              class="hidden"
-              :disabled="isUploadingImages"
-              @change="handleFileSelect"
-            />
+            <!-- New images -->
+            <div
+              v-for="(url, index) in newImageUrls"
+              :key="'new-' + index"
+              class="relative aspect-square rounded-lg overflow-hidden bg-gray-100 group"
+            >
+              <img :src="url" alt="Nova foto" class="w-full h-full object-cover" />
+              <span class="absolute top-1 left-1 px-1.5 py-0.5 bg-blue-500 text-white text-[10px] rounded-full">
+                Nova
+              </span>
+              <div class="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100">
+                <button
+                  type="button"
+                  @click="editNewImage(index)"
+                  class="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center"
+                >
+                  <svg class="w-4 h-4 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  @click="removeNewImage(index)"
+                  class="w-8 h-8 bg-red-500/90 rounded-full flex items-center justify-center"
+                >
+                  <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Add button -->
             <button
+              v-if="totalImages < 5"
               type="button"
               @click="triggerFileInput"
-              :disabled="isUploadingImages"
-              class="flex items-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-purple-500 hover:text-purple-600 transition-colors w-full justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+              class="aspect-square border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-400 hover:bg-purple-50 transition-colors flex items-center justify-center"
             >
-              <svg v-if="isUploadingImages" class="w-6 h-6 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              <svg class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
               </svg>
-              <svg v-else class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              {{ isUploadingImages ? 'Enviando...' : 'Adicionar fotos' }}
             </button>
-            <p class="text-sm text-gray-500 text-center mt-2">
-              JPG, PNG ou WebP (max 5MB cada) - Upload automatico
-            </p>
           </div>
         </section>
 
-        <!-- Description -->
-        <section class="bg-white p-6 rounded-lg shadow-sm border">
-          <h2 class="text-xl font-semibold text-gray-900 mb-4">Descricao</h2>
-
-          <div>
-            <label for="description" class="block text-sm font-medium text-gray-700 mb-1">
-              Historia do animal *
-            </label>
-            <textarea
-              id="description"
-              v-model="form.description"
-              rows="5"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-            ></textarea>
-          </div>
-
-          <div class="mt-4">
-            <label for="special_needs" class="block text-sm font-medium text-gray-700 mb-1">
-              Necessidades Especiais
-            </label>
-            <textarea
-              id="special_needs"
-              v-model="form.special_needs"
-              rows="3"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-            ></textarea>
-          </div>
-        </section>
-
-        <!-- Traits -->
-        <section class="bg-white p-6 rounded-lg shadow-sm border">
-          <h2 class="text-xl font-semibold text-gray-900 mb-4">Caracteristicas</h2>
-
-          <div class="flex flex-wrap gap-2">
+        <!-- Status -->
+        <section>
+          <h3 class="text-sm font-medium text-gray-700 mb-2">Status</h3>
+          <div class="flex gap-2">
             <button
-              v-for="trait in traitOptions"
-              :key="trait"
+              v-for="option in statusOptions"
+              :key="option.value"
               type="button"
-              @click="toggleTrait(trait)"
+              @click="form.status = option.value"
               :class="[
-                'px-4 py-2 rounded-full text-sm font-medium transition-colors',
-                form.traits?.includes(trait)
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                'flex-1 py-2 px-3 rounded-lg text-sm font-medium border transition-colors',
+                form.status === option.value ? option.color : 'bg-gray-50 text-gray-500 border-gray-200'
               ]"
             >
-              {{ trait }}
+              {{ option.label }}
             </button>
           </div>
         </section>
 
-        <!-- Location and Contact -->
-        <section class="bg-white p-6 rounded-lg shadow-sm border">
-          <h2 class="text-xl font-semibold text-gray-900 mb-4">Localizacao e Contato</h2>
+        <!-- Basic Info -->
+        <section class="space-y-3">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Nome</label>
+            <input
+              v-model="form.name"
+              type="text"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            />
+          </div>
 
-          <div class="space-y-4">
+          <!-- Species -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+            <select
+              v-model="form.species"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
+            >
+              <option v-for="option in speciesOptions" :key="option.value" :value="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Size & Gender -->
+          <div class="grid grid-cols-2 gap-3">
             <div>
-              <label for="location" class="block text-sm font-medium text-gray-700 mb-1">
-                Cidade/Regiao *
-              </label>
-              <input
-                id="location"
-                v-model="form.location"
-                type="text"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-              />
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
-                <input
-                  id="phone"
-                  v-model="form.contact_info.phone"
-                  type="tel"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-              </div>
-
-              <div>
-                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
-                <input
-                  id="email"
-                  v-model="form.contact_info.email"
-                  type="email"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-              </div>
-
-              <div>
-                <label for="whatsapp" class="block text-sm font-medium text-gray-700 mb-1">WhatsApp</label>
-                <input
-                  id="whatsapp"
-                  v-model="form.contact_info.whatsapp"
-                  type="tel"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
+              <label class="block text-sm font-medium text-gray-700 mb-1">Porte</label>
+              <div class="flex gap-1">
+                <button
+                  v-for="option in sizeOptions"
+                  :key="option.value"
+                  type="button"
+                  @click="form.size = option.value"
+                  :class="[
+                    'flex-1 py-2 rounded-lg text-xs font-medium transition-colors',
+                    form.size === option.value
+                      ? 'bg-purple-600 text-white'
+                      : 'bg-gray-100 text-gray-600'
+                  ]"
+                >
+                  {{ option.label }}
+                </button>
               </div>
             </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Sexo</label>
+              <div class="flex gap-1">
+                <button
+                  v-for="option in genderOptions"
+                  :key="option.value"
+                  type="button"
+                  @click="form.gender = option.value"
+                  :class="[
+                    'flex-1 py-2 rounded-lg text-xs font-medium transition-colors',
+                    form.gender === option.value
+                      ? 'bg-purple-600 text-white'
+                      : 'bg-gray-100 text-gray-600'
+                  ]"
+                >
+                  {{ option.label }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Location -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Cidade</label>
+            <input
+              v-model="form.location"
+              type="text"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              placeholder="Ex: São Paulo - SP"
+            />
+          </div>
+
+          <!-- Description -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+            <textarea
+              v-model="form.description"
+              rows="2"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+              placeholder="Opcional..."
+            ></textarea>
+          </div>
+
+          <!-- WhatsApp -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">WhatsApp</label>
+            <input
+              v-model="form.contact_info.whatsapp"
+              type="tel"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              placeholder="(11) 99999-9999"
+            />
           </div>
         </section>
 
         <!-- Submit -->
-        <div class="flex justify-end gap-4">
-          <NuxtLink
-            :to="`/animais/${animalId}`"
-            class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors"
-          >
-            Cancelar
-          </NuxtLink>
-          <button
-            type="submit"
-            :disabled="isSubmitting"
-            class="px-6 py-3 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors disabled:opacity-50"
-          >
-            {{ isSubmitting ? 'Salvando...' : 'Salvar Alteracoes' }}
-          </button>
+        <div class="fixed bottom-0 left-0 right-0 bg-white border-t p-4">
+          <div class="container mx-auto max-w-lg flex gap-3">
+            <NuxtLink
+              :to="`/animais/${animalId}`"
+              class="flex-1 py-3 border border-gray-300 rounded-xl text-gray-700 font-medium text-center hover:bg-gray-50"
+            >
+              Cancelar
+            </NuxtLink>
+            <button
+              type="submit"
+              :disabled="isSubmitting || isUploadingImages"
+              class="flex-1 py-3 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 disabled:opacity-50"
+            >
+              {{ isUploadingImages ? 'Enviando fotos...' : isSubmitting ? 'Salvando...' : 'Salvar' }}
+            </button>
+          </div>
         </div>
       </form>
     </div>
+
+    <!-- Image Cropper Modal -->
+    <ClientOnly>
+      <Teleport to="body">
+        <CommonImageCropper
+          v-if="showCropper"
+          :image="cropperImageUrl"
+          @save="handleCropSave"
+          @cancel="handleCropCancel"
+        />
+      </Teleport>
+    </ClientOnly>
   </div>
 </template>
