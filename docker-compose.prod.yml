@@ -76,13 +76,13 @@ services:
       - backend
     restart: always
 
-  # Nginx Reverse Proxy (Coolify/Traefik will route to this)
+  # Nginx Reverse Proxy (exposed directly, bypass Traefik)
   nginx:
     build:
       context: ./nginx
       dockerfile: Dockerfile
-    expose:
-      - "80"
+    ports:
+      - "8080:80"
     depends_on:
       - backend
       - frontend
