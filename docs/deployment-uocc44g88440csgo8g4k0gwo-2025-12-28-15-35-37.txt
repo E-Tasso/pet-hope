@@ -1,0 +1,287 @@
+2025-Dec-28 15:30:59.849586 Starting deployment of e--tasso/pet-hope:main-ows0og4c40cc8w48g0w0k40o to localhost.
+2025-Dec-28 15:31:00.033743 Preparing container with helper image: ghcr.io/coollabsio/coolify-helper:1.0.12
+2025-Dec-28 15:31:01.527117 ----------------------------------------
+2025-Dec-28 15:31:01.534666 Importing E-Tasso/pet-hope:main (commit sha b681d8d529055386fed7e35ef633ab8dced079d0) to /artifacts/uocc44g88440csgo8g4k0gwo.
+2025-Dec-28 15:31:06.817978 Added 13 ARG declarations to Dockerfile for service backend.
+2025-Dec-28 15:31:08.091668 Added 26 ARG declarations to Dockerfile for service frontend (multi-stage build, added to 2 stages).
+2025-Dec-28 15:31:08.109025 Pulling & building required images.
+2025-Dec-28 15:31:09.021380 Adding build arguments to Docker Compose build command.
+2025-Dec-28 15:34:36.530586 Removing old containers.
+2025-Dec-28 15:34:36.652529 Starting new application.
+2025-Dec-28 15:35:20.820363 ========================================
+2025-Dec-28 15:35:20.839168 Deployment failed: Command execution failed (exit code 1): docker exec uocc44g88440csgo8g4k0gwo bash -c 'COOLIFY_BRANCH=main COOLIFY_RESOURCE_UUID=q80kkccg8kocck8kc0gc004g docker compose --env-file /artifacts/uocc44g88440csgo8g4k0gwo/.env --project-name q80kkccg8kocck8kc0gc004g --project-directory /artifacts/uocc44g88440csgo8g4k0gwo -f /artifacts/uocc44g88440csgo8g4k0gwo/docker-compose.prod.yml up -d'
+2025-Dec-28 15:35:20.839168 Error: minio Pulling
+2025-Dec-28 15:35:20.839168 nginx Pulling
+2025-Dec-28 15:35:20.839168 postgres Pulling
+2025-Dec-28 15:35:20.839168 34013573f278 Pulling fs layer
+2025-Dec-28 15:35:20.839168 f9c0805c25ee Pulling fs layer
+2025-Dec-28 15:35:20.839168 b83ce1c86227 Pulling fs layer
+2025-Dec-28 15:35:20.839168 f94d28849fa3 Pulling fs layer
+2025-Dec-28 15:35:20.839168 81260b173076 Pulling fs layer
+2025-Dec-28 15:35:20.839168 71e9fc939447 Pulling fs layer
+2025-Dec-28 15:35:20.839168 1008deaf6ec4 Pulling fs layer
+2025-Dec-28 15:35:20.839168 c1bc68842c41 Pulling fs layer
+2025-Dec-28 15:35:20.839168 0288b5a0d7e7 Pulling fs layer
+2025-Dec-28 15:35:20.839168 34013573f278 Download complete
+2025-Dec-28 15:35:20.839168 f9c0805c25ee Downloading [=====> ] 4.194MB/39.45MB
+2025-Dec-28 15:35:20.839168 de54cb821236 Pulling fs layer
+2025-Dec-28 15:35:20.839168 da7c973d8b92 Pulling fs layer
+2025-Dec-28 15:35:20.839168 25f453064fd3 Pulling fs layer
+2025-Dec-28 15:35:20.839168 33f95a0f3229 Pulling fs layer
+2025-Dec-28 15:35:20.839168 085c5e5aaa8e Pulling fs layer
+2025-Dec-28 15:35:20.839168 0abf9e567266 Pulling fs layer
+2025-Dec-28 15:35:20.839168 567f84da6fbd Pulling fs layer
+2025-Dec-28 15:35:20.839168 f9c0805c25ee Downloading [==============> ] 11.53MB/39.45MB
+2025-Dec-28 15:35:20.839168 81260b173076 Downloading [==================================================>] 122.7kB/122.7kB
+2025-Dec-28 15:35:20.839168 0288b5a0d7e7 Downloading [==================================================>] 11.88kB/11.88kB
+2025-Dec-28 15:35:20.839168 97b8e529965a Pulling fs layer
+2025-Dec-28 15:35:20.839168 3048a283a433 Pulling fs layer
+2025-Dec-28 15:35:20.839168 feb143896d95 Pulling fs layer
+2025-Dec-28 15:35:20.839168 6bfb940eb824 Pulling fs layer
+2025-Dec-28 15:35:20.839168 e76f2995a422 Pulling fs layer
+2025-Dec-28 15:35:20.839168 9582264a43c0 Pulling fs layer
+2025-Dec-28 15:35:20.839168 d3a0dfeb7e38 Pulling fs layer
+2025-Dec-28 15:35:20.839168 137ed19c6b80 Pulling fs layer
+2025-Dec-28 15:35:20.839168 6fe79fe4410f Pulling fs layer
+2025-Dec-28 15:35:20.839168 b83ce1c86227 Downloading [=======> ] 1.049MB/7.241MB
+2025-Dec-28 15:35:20.839168 0288b5a0d7e7 Download complete
+2025-Dec-28 15:35:20.839168 f9c0805c25ee Downloading [==========================> ] 20.97MB/39.45MB
+2025-Dec-28 15:35:20.839168 f94d28849fa3 Downloading [================================> ] 1.049MB/1.637MB
+2025-Dec-28 15:35:20.839168 81260b173076 Download complete
+2025-Dec-28 15:35:20.839168 71e9fc939447 Downloading [=====================> ] 1.049MB/2.402MB
+2025-Dec-28 15:35:20.839168 c1bc68842c41 Download complete
+2025-Dec-28 15:35:20.839168 b83ce1c86227 Downloading [============================> ] 4.194MB/7.241MB
+2025-Dec-28 15:35:20.839168 1008deaf6ec4 Downloading [=========> ] 2.097MB/11.19MB
+2025-Dec-28 15:35:20.839168 f9c0805c25ee Downloading [==============================> ] 24.16MB/39.45MB
+2025-Dec-28 15:35:20.839168 f94d28849fa3 Download complete
+2025-Dec-28 15:35:20.839168 71e9fc939447 Download complete
+2025-Dec-28 15:35:20.839168 54c5bfc22277 Downloading [==================================================>] 21.1kB/21.1kB
+2025-Dec-28 15:35:20.839168 b83ce1c86227 Download complete
+2025-Dec-28 15:35:20.839168 1008deaf6ec4 Downloading [==================> ] 4.194MB/11.19MB
+2025-Dec-28 15:35:20.839168 f9c0805c25ee Downloading [===================================> ] 28.31MB/39.45MB
+2025-Dec-28 15:35:20.839168 a9bc753a885a Downloading [==================================================>] 44.31kB/44.31kB
+2025-Dec-28 15:35:20.839168 35e741720152 Download complete
+2025-Dec-28 15:35:20.839168 54c5bfc22277 Download complete
+2025-Dec-28 15:35:20.839168 b83ce1c86227 Extracting 1 s
+2025-Dec-28 15:35:20.839168 1008deaf6ec4 Downloading [================================> ] 7.34MB/11.19MB
+2025-Dec-28 15:35:20.839168 f9c0805c25ee Downloading [=========================================> ] 33.06MB/39.45MB
+2025-Dec-28 15:35:20.839168 a9bc753a885a Download complete
+2025-Dec-28 15:35:20.839168 6fe79fe4410f Downloading [==================================================>] 172B/172B
+2025-Dec-28 15:35:20.839168 b83ce1c86227 Extracting 1 s
+2025-Dec-28 15:35:20.839168 f9c0805c25ee Downloading [===========================================> ] 34.6MB/39.45MB
+2025-Dec-28 15:35:20.839168 1008deaf6ec4 Downloading [==========================================> ] 9.437MB/11.19MB
+2025-Dec-28 15:35:20.839168 de54cb821236 Downloading [=========> ] 3.146MB/17.26MB
+2025-Dec-28 15:35:20.839168 085c5e5aaa8e Download complete
+2025-Dec-28 15:35:20.839168 6fe79fe4410f Download complete
+2025-Dec-28 15:35:20.839168 da7c973d8b92 Download complete
+2025-Dec-28 15:35:20.839168 fe7002a62779 Download complete
+2025-Dec-28 15:35:20.839168 0abf9e567266 Download complete
+2025-Dec-28 15:35:20.839168 feb143896d95 Download complete
+2025-Dec-28 15:35:20.839168 de54cb821236 Downloading [============> ] 4.194MB/17.26MB
+2025-Dec-28 15:35:20.839168 25f453064fd3 Downloading [==================================================>] 1.856MB/1.856MB
+2025-Dec-28 15:35:20.839168 6bfb940eb824 Download complete
+2025-Dec-28 15:35:20.839168 b83ce1c86227 Extracting 1 s
+2025-Dec-28 15:35:20.839168 567f84da6fbd Download complete
+2025-Dec-28 15:35:20.839168 f9c0805c25ee Downloading [===============================================> ] 37.75MB/39.45MB
+2025-Dec-28 15:35:20.839168 33f95a0f3229 Download complete
+2025-Dec-28 15:35:20.839168 1008deaf6ec4 Download complete
+2025-Dec-28 15:35:20.839168 137ed19c6b80 Download complete
+2025-Dec-28 15:35:20.839168 97b8e529965a Downloading [=> ] 3.146MB/105.2MB
+2025-Dec-28 15:35:20.839168 3048a283a433 Download complete
+2025-Dec-28 15:35:20.839168 9582264a43c0 Download complete
+2025-Dec-28 15:35:20.839168 d3a0dfeb7e38 Download complete
+2025-Dec-28 15:35:20.839168 de54cb821236 Downloading [=====================> ] 7.34MB/17.26MB
+2025-Dec-28 15:35:20.839168 25f453064fd3 Download complete
+2025-Dec-28 15:35:20.839168 e76f2995a422 Download complete
+2025-Dec-28 15:35:20.839168 b83ce1c86227 Extracting 1 s
+2025-Dec-28 15:35:20.839168 3048a283a433 Pull complete
+2025-Dec-28 15:35:20.839168 f9c0805c25ee Download complete
+2025-Dec-28 15:35:20.839168 25f453064fd3 Extracting 1 s
+2025-Dec-28 15:35:20.839168 de54cb821236 Downloading [=================================> ] 11.53MB/17.26MB
+2025-Dec-28 15:35:20.839168 97b8e529965a Downloading [====> ] 9.437MB/105.2MB
+2025-Dec-28 15:35:20.839168 6fe79fe4410f Extracting 1 s
+2025-Dec-28 15:35:20.839168 25f453064fd3 Pull complete
+2025-Dec-28 15:35:20.839168 de54cb821236 Downloading [==========================================> ] 14.68MB/17.26MB
+2025-Dec-28 15:35:20.839168 97b8e529965a Downloading [=====> ] 12.58MB/105.2MB
+2025-Dec-28 15:35:20.839168 b83ce1c86227 Extracting 1 s
+2025-Dec-28 15:35:20.839168 6fe79fe4410f Pull complete
+2025-Dec-28 15:35:20.839168 567f84da6fbd Extracting 1 s
+2025-Dec-28 15:35:20.839168 137ed19c6b80 Pull complete
+2025-Dec-28 15:35:20.839168 de54cb821236 Downloading [==================================================>] 17.26MB/17.26MB
+2025-Dec-28 15:35:20.839168 da7c973d8b92 Extracting 1 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Downloading [=======> ] 16.05MB/105.2MB
+2025-Dec-28 15:35:20.839168 567f84da6fbd Pull complete
+2025-Dec-28 15:35:20.839168 b83ce1c86227 Extracting 1 s
+2025-Dec-28 15:35:20.839168 de54cb821236 Download complete
+2025-Dec-28 15:35:20.839168 da7c973d8b92 Pull complete
+2025-Dec-28 15:35:20.839168 33f95a0f3229 Pull complete
+2025-Dec-28 15:35:20.839168 97b8e529965a Downloading [=========> ] 20.97MB/105.2MB
+2025-Dec-28 15:35:20.839168 b83ce1c86227 Extracting 1 s
+2025-Dec-28 15:35:20.839168 085c5e5aaa8e Pull complete
+2025-Dec-28 15:35:20.839168 97b8e529965a Downloading [============> ] 26.51MB/105.2MB
+2025-Dec-28 15:35:20.839168 b83ce1c86227 Extracting 1 s
+2025-Dec-28 15:35:20.839168 0abf9e567266 Pull complete
+2025-Dec-28 15:35:20.839168 de54cb821236 Extracting 1 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Downloading [=============> ] 29.36MB/105.2MB
+2025-Dec-28 15:35:20.839168 de54cb821236 Extracting 1 s
+2025-Dec-28 15:35:20.839168 f94d28849fa3 Extracting 1 s
+2025-Dec-28 15:35:20.839168 b83ce1c86227 Pull complete
+2025-Dec-28 15:35:20.839168 f94d28849fa3 Extracting 1 s
+2025-Dec-28 15:35:20.839168 de54cb821236 Extracting 1 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Downloading [================> ] 34.6MB/105.2MB
+2025-Dec-28 15:35:20.839168 f94d28849fa3 Extracting 1 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Downloading [===================> ] 40.89MB/105.2MB
+2025-Dec-28 15:35:20.839168 de54cb821236 Extracting 1 s
+2025-Dec-28 15:35:20.839168 81260b173076 Extracting 1 s
+2025-Dec-28 15:35:20.839168 f94d28849fa3 Pull complete
+2025-Dec-28 15:35:20.839168 97b8e529965a Downloading [======================> ] 47.19MB/105.2MB
+2025-Dec-28 15:35:20.839168 de54cb821236 Extracting 1 s
+2025-Dec-28 15:35:20.839168 81260b173076 Pull complete
+2025-Dec-28 15:35:20.839168 f9c0805c25ee Extracting 1 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Downloading [=========================> ] 54.16MB/105.2MB
+2025-Dec-28 15:35:20.839168 de54cb821236 Extracting 1 s
+2025-Dec-28 15:35:20.839168 f9c0805c25ee Extracting 1 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Downloading [============================> ] 59.77MB/105.2MB
+2025-Dec-28 15:35:20.839168 de54cb821236 Extracting 1 s
+2025-Dec-28 15:35:20.839168 f9c0805c25ee Extracting 1 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Downloading [================================> ] 68.16MB/105.2MB
+2025-Dec-28 15:35:20.839168 de54cb821236 Extracting 1 s
+2025-Dec-28 15:35:20.839168 f9c0805c25ee Extracting 1 s
+2025-Dec-28 15:35:20.839168 de54cb821236 Extracting 1 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Downloading [=================================> ] 71.3MB/105.2MB
+2025-Dec-28 15:35:20.839168 f9c0805c25ee Extracting 1 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Downloading [===================================> ] 74.45MB/105.2MB
+2025-Dec-28 15:35:20.839168 de54cb821236 Extracting 1 s
+2025-Dec-28 15:35:20.839168 f9c0805c25ee Extracting 1 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Downloading [======================================> ] 81.79MB/105.2MB
+2025-Dec-28 15:35:20.839168 de54cb821236 Extracting 1 s
+2025-Dec-28 15:35:20.839168 f9c0805c25ee Extracting 1 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Downloading [===========================================> ] 91.23MB/105.2MB
+2025-Dec-28 15:35:20.839168 de54cb821236 Extracting 2 s
+2025-Dec-28 15:35:20.839168 f9c0805c25ee Extracting 1 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Downloading [============================================> ] 94.37MB/105.2MB
+2025-Dec-28 15:35:20.839168 de54cb821236 Extracting 2 s
+2025-Dec-28 15:35:20.839168 f9c0805c25ee Extracting 1 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Downloading [===============================================> ] 99.61MB/105.2MB
+2025-Dec-28 15:35:20.839168 de54cb821236 Extracting 2 s
+2025-Dec-28 15:35:20.839168 f9c0805c25ee Extracting 1 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Downloading [=================================================> ] 104.9MB/105.2MB
+2025-Dec-28 15:35:20.839168 de54cb821236 Pull complete
+2025-Dec-28 15:35:20.839168 f9c0805c25ee Extracting 1 s
+2025-Dec-28 15:35:20.839168 nginx Pulled
+2025-Dec-28 15:35:20.839168 97b8e529965a Download complete
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 1 s
+2025-Dec-28 15:35:20.839168 f9c0805c25ee Extracting 2 s
+2025-Dec-28 15:35:20.839168 f9c0805c25ee Extracting 2 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 1 s
+2025-Dec-28 15:35:20.839168 f9c0805c25ee Extracting 2 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 1 s
+2025-Dec-28 15:35:20.839168 f9c0805c25ee Extracting 2 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 1 s
+2025-Dec-28 15:35:20.839168 f9c0805c25ee Extracting 2 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 1 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 1 s
+2025-Dec-28 15:35:20.839168 f9c0805c25ee Extracting 2 s
+2025-Dec-28 15:35:20.839168 f9c0805c25ee Extracting 2 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 1 s
+2025-Dec-28 15:35:20.839168 f9c0805c25ee Extracting 2 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 1 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 1 s
+2025-Dec-28 15:35:20.839168 f9c0805c25ee Extracting 2 s
+2025-Dec-28 15:35:20.839168 f9c0805c25ee Extracting 2 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 1 s
+2025-Dec-28 15:35:20.839168 1008deaf6ec4 Extracting 1 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 2 s
+2025-Dec-28 15:35:20.839168 f9c0805c25ee Pull complete
+2025-Dec-28 15:35:20.839168 1008deaf6ec4 Extracting 1 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 2 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 2 s
+2025-Dec-28 15:35:20.839168 1008deaf6ec4 Extracting 1 s
+2025-Dec-28 15:35:20.839168 1008deaf6ec4 Extracting 1 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 2 s
+2025-Dec-28 15:35:20.839168 1008deaf6ec4 Extracting 1 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 2 s
+2025-Dec-28 15:35:20.839168 71e9fc939447 Extracting 1 s
+2025-Dec-28 15:35:20.839168 1008deaf6ec4 Pull complete
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 2 s
+2025-Dec-28 15:35:20.839168 0288b5a0d7e7 Pull complete
+2025-Dec-28 15:35:20.839168 c1bc68842c41 Pull complete
+2025-Dec-28 15:35:20.839168 71e9fc939447 Pull complete
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 2 s
+2025-Dec-28 15:35:20.839168 34013573f278 Pull complete
+2025-Dec-28 15:35:20.839168 minio Pulled
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 2 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 2 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 2 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 2 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 3 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 3 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 3 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 3 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 3 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 3 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 3 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 3 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 3 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 4 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 4 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 4 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 4 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 4 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 4 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 4 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 4 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 4 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 4 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 5 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 5 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 5 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 5 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 5 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 5 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 5 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 5 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 5 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 6 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 6 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 6 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 6 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Extracting 6 s
+2025-Dec-28 15:35:20.839168 6bfb940eb824 Pull complete
+2025-Dec-28 15:35:20.839168 e76f2995a422 Extracting 1 s
+2025-Dec-28 15:35:20.839168 97b8e529965a Pull complete
+2025-Dec-28 15:35:20.839168 feb143896d95 Pull complete
+2025-Dec-28 15:35:20.839168 9582264a43c0 Pull complete
+2025-Dec-28 15:35:20.839168 d3a0dfeb7e38 Pull complete
+2025-Dec-28 15:35:20.839168 e76f2995a422 Pull complete
+2025-Dec-28 15:35:20.839168 postgres Pulled
+2025-Dec-28 15:35:20.839168 Volume "q80kkccg8kocck8kc0gc004g_postgres-data" Creating
+2025-Dec-28 15:35:20.839168 Volume "q80kkccg8kocck8kc0gc004g_postgres-data" Created
+2025-Dec-28 15:35:20.839168 Volume "q80kkccg8kocck8kc0gc004g_minio-data" Creating
+2025-Dec-28 15:35:20.839168 Volume "q80kkccg8kocck8kc0gc004g_minio-data" Created
+2025-Dec-28 15:35:20.839168 Container postgres-q80kkccg8kocck8kc0gc004g-153104843279 Creating
+2025-Dec-28 15:35:20.839168 Container minio-q80kkccg8kocck8kc0gc004g-153104850372 Creating
+2025-Dec-28 15:35:20.839168 Container minio-q80kkccg8kocck8kc0gc004g-153104850372 Created
+2025-Dec-28 15:35:20.839168 Container postgres-q80kkccg8kocck8kc0gc004g-153104843279 Created
+2025-Dec-28 15:35:20.839168 Container backend-q80kkccg8kocck8kc0gc004g-153104855530 Creating
+2025-Dec-28 15:35:20.839168 Container backend-q80kkccg8kocck8kc0gc004g-153104855530 Created
+2025-Dec-28 15:35:20.839168 Container frontend-q80kkccg8kocck8kc0gc004g-153104861907 Creating
+2025-Dec-28 15:35:20.839168 Container frontend-q80kkccg8kocck8kc0gc004g-153104861907 Created
+2025-Dec-28 15:35:20.839168 Container nginx-q80kkccg8kocck8kc0gc004g-153104863169 Creating
+2025-Dec-28 15:35:20.839168 Container nginx-q80kkccg8kocck8kc0gc004g-153104863169 Created
+2025-Dec-28 15:35:20.839168 Container postgres-q80kkccg8kocck8kc0gc004g-153104843279 Starting
+2025-Dec-28 15:35:20.839168 Container minio-q80kkccg8kocck8kc0gc004g-153104850372 Starting
+2025-Dec-28 15:35:20.839168 Container postgres-q80kkccg8kocck8kc0gc004g-153104843279 Started
+2025-Dec-28 15:35:20.839168 Container minio-q80kkccg8kocck8kc0gc004g-153104850372 Started
+2025-Dec-28 15:35:20.839168 Container postgres-q80kkccg8kocck8kc0gc004g-153104843279 Waiting
+2025-Dec-28 15:35:20.839168 Container minio-q80kkccg8kocck8kc0gc004g-153104850372 Waiting
+2025-Dec-28 15:35:20.839168 Container postgres-q80kkccg8kocck8kc0gc004g-153104843279 Healthy
+2025-Dec-28 15:35:20.839168 Container minio-q80kkccg8kocck8kc0gc004g-153104850372 Healthy
+2025-Dec-28 15:35:20.839168 Container backend-q80kkccg8kocck8kc0gc004g-153104855530 Starting
+2025-Dec-28 15:35:20.839168 Container backend-q80kkccg8kocck8kc0gc004g-153104855530 Started
+2025-Dec-28 15:35:20.839168 Container frontend-q80kkccg8kocck8kc0gc004g-153104861907 Starting
+2025-Dec-28 15:35:20.839168 Container frontend-q80kkccg8kocck8kc0gc004g-153104861907 Started
+2025-Dec-28 15:35:20.839168 Container nginx-q80kkccg8kocck8kc0gc004g-153104863169 Starting
+2025-Dec-28 15:35:20.839168 Error response from daemon: failed to create task for container: failed to create shim task: OCI runtime create failed: runc create failed: unable to start container process: error during container init: error mounting "/data/coolify/applications/q80kkccg8kocck8kc0gc004g/nginx/nginx.conf" to rootfs at "/etc/nginx/nginx.conf": mount src=/data/coolify/applications/q80kkccg8kocck8kc0gc004g/nginx/nginx.conf, dst=/etc/nginx/nginx.conf, dstFd=/proc/thread-self/fd/11, flags=MS_BIND|MS_REC: not a directory: Are you trying to mount a directory onto a file (or vice-versa)? Check if the specified host path exists and is the expected type
+2025-Dec-28 15:35:20.839168 exit status 1
+2025-Dec-28 15:35:21.202929 ========================================
