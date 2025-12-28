@@ -2,17 +2,23 @@
 
 FROM node:20-alpine as base
 
+# Build arguments (needed at build time for Nuxt)
+ARG NUXT_PUBLIC_API_BASE=/api
+
 # Set working directory
 WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install all dependencies (including devDependencies for build)
+RUN npm ci
 
 # Copy app files
 COPY . .
+
+# Set env for build
+ENV NUXT_PUBLIC_API_BASE=${NUXT_PUBLIC_API_BASE}
 
 # Build the application
 RUN npm run build
