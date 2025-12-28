@@ -81,9 +81,7 @@ export async function uploadAnimalImage(animalId: string, file: File) {
   })
 }
 
-export function useAnimalFeed(pageSize = 10) {
-  const config = useRuntimeConfig()
-
+export function useAnimalFeed(filters?: Ref<AnimalFilters>, pageSize = 10) {
   const animals = ref<AnimalFeedItem[]>([])
   const page = ref(1)
   const hasMore = ref(true)
@@ -98,12 +96,23 @@ export function useAnimalFeed(pageSize = 10) {
     error.value = null
 
     try {
+      const query: Record<string, any> = {
+        page: page.value,
+        page_size: pageSize,
+      }
+
+      // Add filters to query
+      if (filters?.value) {
+        Object.entries(filters.value).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== '') {
+            query[key] = value
+          }
+        })
+      }
+
       const response = await $fetch<PaginatedResponse<AnimalFeedItem>>('/animals/feed', {
-        baseURL: config.public.apiBase as string,
-        query: {
-          page: page.value,
-          page_size: pageSize,
-        },
+        baseURL: getApiBase(),
+        query,
       })
 
       animals.value = [...animals.value, ...response.items]
@@ -123,6 +132,14 @@ export function useAnimalFeed(pageSize = 10) {
     hasMore.value = true
     error.value = null
     total.value = 0
+  }
+
+  // Watch filters and reset when they change
+  if (filters) {
+    watch(filters, () => {
+      reset()
+      loadMore()
+    }, { deep: true })
   }
 
   return {
