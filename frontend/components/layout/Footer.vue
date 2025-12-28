@@ -25,12 +25,6 @@
               Início
             </NuxtLink>
             <NuxtLink
-              to="/animais"
-              class="text-muted-foreground hover:text-primary transition-colors"
-            >
-              Animais para Adoção
-            </NuxtLink>
-            <NuxtLink
               to="/sobre"
               class="text-muted-foreground hover:text-primary transition-colors"
             >

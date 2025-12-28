@@ -12,11 +12,11 @@ const closeMobileMenu = () => {
 
 <template>
   <header class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-    <div class="container flex h-16 items-center justify-between">
+    <div class="container flex h-12 items-center justify-between">
       <!-- Logo -->
       <NuxtLink to="/" class="flex items-center gap-2" @click="closeMobileMenu">
-        <img src="/pethope_logo_v3.png" alt="PetHope" class="h-9 w-9" />
-        <span class="text-xl font-bold text-primary md:text-2xl">PetHope</span>
+        <img src="/pethope_logo_v3.png" alt="PetHope" class="h-8 w-8" />
+        <span class="text-xl font-bold text-purple-700 md:text-2xl">PetHope</span>
       </NuxtLink>
 
       <!-- Desktop Navigation -->
@@ -26,12 +26,6 @@ const closeMobileMenu = () => {
           class="text-sm font-medium transition-colors hover:text-primary"
         >
           Início
-        </NuxtLink>
-        <NuxtLink
-          to="/animais"
-          class="text-sm font-medium transition-colors hover:text-primary"
-        >
-          Animais
         </NuxtLink>
         <NuxtLink
           to="/sobre"
@@ -95,13 +89,6 @@ const closeMobileMenu = () => {
             @click="closeMobileMenu"
           >
             Início
-          </NuxtLink>
-          <NuxtLink
-            to="/animais"
-            class="block rounded-md px-3 py-2 text-base font-medium hover:bg-accent hover:text-accent-foreground"
-            @click="closeMobileMenu"
-          >
-            Animais
           </NuxtLink>
           <NuxtLink
             to="/sobre"

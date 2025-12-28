@@ -67,7 +67,7 @@ useSeoMeta({
             Navegue pelos animais disponíveis e encontre seu novo melhor amigo
           </p>
           <NuxtLink
-            to="/animais"
+            to="/"
             class="inline-flex items-center justify-center rounded-md bg-primary px-8 py-3 text-base font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90"
           >
             Ver Animais Disponíveis

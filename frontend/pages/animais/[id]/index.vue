@@ -38,7 +38,7 @@ useSeoMeta({
           O animal que você procura não existe ou foi removido.
         </p>
         <NuxtLink
-          to="/animais"
+          to="/"
           class="mt-6 inline-flex items-center justify-center rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90"
         >
           Ver outros animais
